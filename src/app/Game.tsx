@@ -12,7 +12,8 @@ const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [tool, setTool] = useState<ToolType>(TOOLS.hoe);
   const [resources, setResouces] = useState<number>(0);
-  const [power, setPower] = useState<number>(0);
+  const [power, setPower] = useState<number>(60);
+  const powerRef = useRef<number>(60);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -58,12 +59,17 @@ const GameScreen = () => {
     window.addEventListener("keydown", handleKeyOperationDown);
 
     const loop = createGameLoop(() => {
-      update(game, input);
+      update(game, input, powerRef.current);
       render(ctx!, game);
     });
 
     const growthInterval = setInterval(() => {
       updateGrowth(game);
+      setPower((prev) => {
+        const next = prev > 0 ? prev - 1 : 0;
+        powerRef.current = next;
+        return next;
+      });
     }, 500);
 
     loop.start();
@@ -112,7 +118,9 @@ const GameScreen = () => {
   );
 };
 
-function update(game: any, input: any) {
+function update(game: Game, input: any, power: number) {
+  if (power < 1) return;
+  console.log(power);
   if (input.keys["w"]) {
     game.player.y -= 1;
     input.keys["w"] = false; // prevent continuous spam
