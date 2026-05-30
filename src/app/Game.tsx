@@ -14,7 +14,6 @@ const GameScreen = () => {
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d");
-    console.log(ctx);
 
     canvas.width = 800;
     canvas.height = 600;
@@ -61,7 +60,6 @@ const GameScreen = () => {
     });
 
     const growthInterval = setInterval(() => {
-      console.log("TICK");
       updateGrowth(game);
     }, 500);
 

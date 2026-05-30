@@ -3,7 +3,6 @@ export function createInput() {
 
   window.addEventListener("keydown", (e) => {
     keys[e.key.toLowerCase()] = true;
-    console.log("keys", keys);
   });
 
   window.addEventListener("keyup", (e) => {
