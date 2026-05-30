@@ -7,6 +7,7 @@ import { applyTool } from "../systems/toolSystem";
 import type { Game } from "../types/game";
 import { TOOLS } from "../constants/tools.const";
 import type { ToolType } from "../types/tools";
+import { SPRITES } from "../constants/sprite.const";
 
 const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -158,17 +159,48 @@ function render(ctx: CanvasRenderingContext2D, game: Game) {
 
   for (let row of game.map) {
     for (let tile of row) {
-      // Always set a default so style can't "leak" from prior tiles.
-      ctx.fillStyle = "#4caf50";
+      const x = tile.x * tileSize;
+      const y = tile.y * tileSize;
 
-      if (tile.type === "tilled") ctx.fillStyle = "#8b5a2b";
-      else if (tile.type === "planted") ctx.fillStyle = "#f5deb3";
-      else if (tile.type === "ready") ctx.fillStyle = "#ffd54f";
-      else if (tile.type === "water") ctx.fillStyle = "#3f7fbf";
-      ctx.fillRect(tile.x * tileSize, tile.y * tileSize, tileSize, tileSize);
+      if (tile.type === "weed") {
+        if (SPRITES.grass.complete) {
+          ctx.drawImage(SPRITES.grass, x, y, tileSize, tileSize);
+        } else {
+          ctx.fillStyle = "#4caf50";
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
+      } else if (tile.type === "tilled") {
+        if (SPRITES.tilled.complete) {
+          ctx.drawImage(SPRITES.tilled, x, y, tileSize, tileSize);
+        } else {
+          ctx.fillStyle = "#8b5a2b";
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
+      } else if (tile.type === "planted") {
+        if (SPRITES.planted.complete) {
+          ctx.drawImage(SPRITES.planted, x, y, tileSize, tileSize);
+        } else {
+          ctx.fillStyle = "#f5deb3";
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
+      } else if (tile.type === "ready") {
+        if (SPRITES.ready.complete) {
+          ctx.drawImage(SPRITES.ready, x, y, tileSize, tileSize);
+        } else {
+          ctx.fillStyle = "#ffd54f";
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
+      } else if (tile.type === "water") {
+        if (SPRITES.water.complete) {
+          ctx.drawImage(SPRITES.water, x, y, tileSize, tileSize);
+        } else {
+          ctx.fillStyle = "#3f7fbf";
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
+      }
 
       ctx.strokeStyle = "#000";
-      ctx.strokeRect(tile.x * tileSize, tile.y * tileSize, tileSize, tileSize);
+      ctx.strokeRect(x, y, tileSize, tileSize);
     }
   }
 
