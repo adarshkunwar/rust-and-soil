@@ -1,9 +1,9 @@
-import Game from "./Game";
+import GameScreen from "./Game";
 
 const App = () => {
   return (
     <div>
-      <Game />
+      <GameScreen />
     </div>
   );
 };

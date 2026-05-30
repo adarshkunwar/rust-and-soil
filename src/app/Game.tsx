@@ -8,7 +8,7 @@ import { applyTool } from "../systems/toolSystem";
 import type { Game } from "../types/game";
 import type { ToolType } from "../types/tools";
 
-const Game = () => {
+const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [tool, setTool] = useState<ToolType>("hoe");
 
@@ -157,4 +157,4 @@ function render(ctx: CanvasRenderingContext2D, game: any) {
   );
 }
 
-export default Game;
+export default GameScreen;
