@@ -5,11 +5,12 @@ import { createMap } from "../world/map";
 import { updateGrowth } from "../systems/growthSystem";
 import { applyTool } from "../systems/toolSystem";
 import type { Game } from "../types/game";
+import { TOOLS } from "../constants/tools.const";
 import type { ToolType } from "../types/tools";
 
 const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [tool, setTool] = useState<ToolType>("hoe");
+  const [tool, setTool] = useState<ToolType>(TOOLS.hoe);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
