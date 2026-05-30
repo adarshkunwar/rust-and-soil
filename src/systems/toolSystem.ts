@@ -2,7 +2,10 @@ import type { Game } from "../types/game";
 import type { ToolType } from "../types/tools";
 import type { Tile } from "../world/tileTypes";
 
-export function applyTool(game: Game) {
+export function applyTool(
+  game: Game,
+  setResource: React.Dispatch<React.SetStateAction<number>>,
+) {
   let tile: Tile = game.map[game.player.y]?.[game.player.x];
   if (!tile) return;
 
@@ -36,6 +39,7 @@ export function applyTool(game: Game) {
     if (tile.type === "ready") {
       tile.crop = undefined;
       tile.type = "weed";
+      setResource((prev: number) => prev + 1);
     }
     return;
   }

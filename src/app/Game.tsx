@@ -11,6 +11,8 @@ import type { ToolType } from "../types/tools";
 const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [tool, setTool] = useState<ToolType>(TOOLS.hoe);
+  const [resources, setResouces] = useState<number>(0);
+  const [power, setPower] = useState<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -49,7 +51,7 @@ const GameScreen = () => {
       }
 
       if (key === "e") {
-        applyTool(game);
+        applyTool(game, setResouces);
       }
     };
 
@@ -90,6 +92,21 @@ const GameScreen = () => {
       >
         <div>1 Hoe | 2 Seed | 3 Hand</div>
         <div>Selected: {tool}</div>
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          background: "rgba(0,0,0,0.6)",
+          color: "white",
+          padding: "10px",
+          fontFamily: "monospace",
+        }}
+      >
+        <div>Crops: {resources}</div>
+        <div>Power: {power}</div>
       </div>
     </div>
   );
