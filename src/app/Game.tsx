@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createGameLoop } from "../engine/gameLoop";
 import { createInput } from "../engine/input";
-import { handleInteraction } from "../systems/interactionSystem";
 import { createMap } from "../world/map";
 import { updateGrowth } from "../systems/growthSystem";
 import { applyTool } from "../systems/toolSystem";
@@ -31,10 +30,6 @@ const GameScreen = () => {
       selectedTool: tool,
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      handleInteraction(game, e.key.toLowerCase());
-    };
-
     const handleKeyOperationDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
 
@@ -58,7 +53,6 @@ const GameScreen = () => {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keydown", handleKeyOperationDown);
 
     const loop = createGameLoop(() => {
@@ -76,7 +70,6 @@ const GameScreen = () => {
     return () => {
       clearInterval(growthInterval);
       window.removeEventListener("keydown", handleKeyOperationDown);
-      window.removeEventListener("keydown", handleKeyDown);
       loop.stop();
     };
   }, []);
