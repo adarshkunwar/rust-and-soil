@@ -1,7 +1,9 @@
+import type { Game } from "../types/game";
 import type { ToolType } from "../types/tools";
+import type { Tile } from "../world/tileTypes";
 
-export function applyTool(game: any) {
-  const tile = game.map[game.player.y]?.[game.player.x];
+export function applyTool(game: Game) {
+  let tile: Tile = game.map[game.player.y]?.[game.player.x];
   if (!tile) return;
 
   const tool: ToolType = game.selectedTool;
@@ -10,7 +12,7 @@ export function applyTool(game: any) {
 
   // HOE → till ground
   if (tool === "hoe") {
-    if (tile.type === "grass") {
+    if (tile.type === "weed") {
       tile.type = "tilled";
     }
     return;
@@ -19,6 +21,7 @@ export function applyTool(game: any) {
   // SEED → plant crop
   if (tool === "seed") {
     if (tile.type === "tilled" && !tile.crop) {
+      tile.type = "planted";
       tile.crop = {
         type: "carrot",
         stage: "seed",
@@ -28,18 +31,11 @@ export function applyTool(game: any) {
     return;
   }
 
-  // WATER → speed up growth
-  if (tool === "water") {
-    if (tile.crop) {
-      tile.crop.growth += 10;
-    }
-    return;
-  }
-
   // HAND → harvest
   if (tool === "hand") {
-    if (tile.crop && tile.crop.stage === "ready") {
+    if (tile.type === "ready") {
       tile.crop = undefined;
+      tile.type = "weed";
     }
     return;
   }

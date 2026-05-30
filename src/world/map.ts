@@ -12,7 +12,7 @@ export const createMap = (): Tile[][] => {
       row.push({
         x,
         y,
-        type: "grass",
+        type: "weed",
         crop: undefined,
       });
     }

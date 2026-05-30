@@ -1,4 +1,6 @@
-export function updateGrowth(game: any) {
+import type { Game } from "../types/game";
+
+export function updateGrowth(game: Game) {
   for (const row of game.map) {
     for (const tile of row) {
       if (!tile.crop) continue;
@@ -11,6 +13,7 @@ export function updateGrowth(game: any) {
 
       if (tile.crop.growth >= 60) {
         tile.crop.stage = "ready";
+        tile.type = "ready";
       }
     }
   }

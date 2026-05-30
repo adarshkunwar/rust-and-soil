@@ -1,1 +1,2 @@
-export type ToolType = "hoe" | "seed" | "water" | "hand";
+export type ToolType = "hoe" | "seed" | "hand";
+export type TileType = "weed" | "tilled" | "planted" | "ready";

@@ -49,11 +49,6 @@ const GameScreen = () => {
       }
 
       if (key === "3") {
-        game.selectedTool = "water";
-        setTool("water");
-      }
-
-      if (key === "4") {
         game.selectedTool = "hand";
         setTool("hand");
       }
@@ -101,7 +96,7 @@ const GameScreen = () => {
           fontFamily: "monospace",
         }}
       >
-        <div>1 Hoe | 2 Seed | 3 Water | 4 Hand</div>
+        <div>1 Hoe | 2 Seed | 3 Hand</div>
         <div>Selected: {tool}</div>
       </div>
     </div>
@@ -130,16 +125,19 @@ function update(game: any, input: any) {
   }
 }
 
-function render(ctx: CanvasRenderingContext2D, game: any) {
+function render(ctx: CanvasRenderingContext2D, game: Game) {
   ctx.clearRect(0, 0, 800, 600);
 
   const tileSize = 32;
 
   for (let row of game.map) {
     for (let tile of row) {
-      if (tile.type === "grass") ctx.fillStyle = "#4caf50";
+      // Always set a default so style can't "leak" from prior tiles.
+      ctx.fillStyle = "#4caf50";
+
       if (tile.type === "tilled") ctx.fillStyle = "#8b5a2b";
-      if (tile.type === "watered") ctx.fillStyle = "#3f7fbf";
+      else if (tile.type === "planted") ctx.fillStyle = "#f5deb3";
+      else if (tile.type === "ready") ctx.fillStyle = "#ffd54f";
       ctx.fillRect(tile.x * tileSize, tile.y * tileSize, tileSize, tileSize);
 
       ctx.strokeStyle = "#000";
