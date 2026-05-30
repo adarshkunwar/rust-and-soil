@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createGameLoop } from "../engine/gameLoop";
 import { createInput } from "../engine/input";
 import { createMap, MAP_WIDTH } from "../world/map";
@@ -8,13 +8,35 @@ import type { Game } from "../types/game";
 import { TOOLS } from "../constants/tools.const";
 import type { ToolType } from "../types/tools";
 import { SPRITES } from "../constants/sprite.const";
+import DeathScreen from "../ui/DeathScreen";
+
+const INITIAL_POWER = 6;
 
 const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [tool, setTool] = useState<ToolType>(TOOLS.hoe);
   const [resources, setResouces] = useState<number>(0);
-  const [power, setPower] = useState<number>(60);
-  const powerRef = useRef<number>(60);
+  const [power, setPower] = useState<number>(INITIAL_POWER);
+  const powerRef = useRef<number>(INITIAL_POWER);
+  const [runId, setRunId] = useState(0);
+
+  const setPowerSynced = useCallback(
+    (updater: number | ((prev: number) => number)) => {
+      setPower((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
+        powerRef.current = next;
+        return next;
+      });
+    },
+    [setPower],
+  );
+
+  const handleRetry = useCallback(() => {
+    setTool(TOOLS.hoe);
+    setResouces(0);
+    setPowerSynced(INITIAL_POWER);
+    setRunId((v) => v + 1);
+  }, [setPowerSynced, setTool, setResouces, setRunId]);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -31,11 +53,16 @@ const GameScreen = () => {
         y: 5,
         speed: 0.1,
       },
-      selectedTool: tool,
+      selectedTool: TOOLS.hoe,
     };
 
     const handleKeyOperationDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
+
+      if (powerRef.current < 1) {
+        if (key === "r" || key === "enter") handleRetry();
+        return;
+      }
 
       if (key === "1") {
         game.selectedTool = "hoe";
@@ -59,28 +86,38 @@ const GameScreen = () => {
 
     window.addEventListener("keydown", handleKeyOperationDown);
 
+    let growthInterval: number | undefined;
     const loop = createGameLoop(() => {
-      update(game, input, powerRef.current, setPower);
+      update(game, input, powerRef.current, setPowerSynced);
       render(ctx!, game);
     });
 
-    const growthInterval = setInterval(() => {
+    growthInterval = window.setInterval(() => {
+      if (powerRef.current < 1) return;
+
+      const next = Math.max(powerRef.current - 1, 0);
+      setPowerSynced(next);
+
+      if (next < 1) {
+        loop.stop();
+        if (growthInterval !== undefined) {
+          clearInterval(growthInterval);
+          growthInterval = undefined;
+        }
+        return;
+      }
+
       updateGrowth(game);
-      setPower((prev) => {
-        const next = prev > 0 ? prev - 1 : 0;
-        powerRef.current = next;
-        return next;
-      });
     }, 500);
 
     loop.start();
 
     return () => {
-      clearInterval(growthInterval);
+      if (growthInterval !== undefined) clearInterval(growthInterval);
       window.removeEventListener("keydown", handleKeyOperationDown);
       loop.stop();
     };
-  }, []);
+  }, [runId, setPowerSynced, handleRetry]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -115,15 +152,17 @@ const GameScreen = () => {
         <div>Crops: {resources}</div>
         <div>Power: {power}</div>
       </div>
+
+      {power < 1 ? <DeathScreen onRetry={handleRetry} /> : null}
     </div>
   );
 };
 
 function update(
   game: Game,
-  input: any,
+  input: { keys: Record<string, boolean> },
   power: number,
-  setPower: React.Dispatch<React.SetStateAction<number>>,
+  setPower: (next: number) => void,
 ) {
   if (power < 1) return;
 
