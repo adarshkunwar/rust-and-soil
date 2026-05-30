@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createGameLoop } from "../engine/gameLoop";
 import { createInput } from "../engine/input";
-import { createMap } from "../world/map";
+import { createMap, MAP_WIDTH } from "../world/map";
 import { updateGrowth } from "../systems/growthSystem";
 import { applyTool } from "../systems/toolSystem";
 import type { Game } from "../types/game";
@@ -59,7 +59,7 @@ const GameScreen = () => {
     window.addEventListener("keydown", handleKeyOperationDown);
 
     const loop = createGameLoop(() => {
-      update(game, input, powerRef.current);
+      update(game, input, powerRef.current, setPower);
       render(ctx!, game);
     });
 
@@ -118,9 +118,18 @@ const GameScreen = () => {
   );
 };
 
-function update(game: Game, input: any, power: number) {
+function update(
+  game: Game,
+  input: any,
+  power: number,
+  setPower: React.Dispatch<React.SetStateAction<number>>,
+) {
   if (power < 1) return;
-  console.log(power);
+
+  if (game.player.x == MAP_WIDTH - 1) {
+    setPower(100);
+  }
+
   if (input.keys["w"]) {
     game.player.y -= 1;
     input.keys["w"] = false; // prevent continuous spam
@@ -155,6 +164,7 @@ function render(ctx: CanvasRenderingContext2D, game: Game) {
       if (tile.type === "tilled") ctx.fillStyle = "#8b5a2b";
       else if (tile.type === "planted") ctx.fillStyle = "#f5deb3";
       else if (tile.type === "ready") ctx.fillStyle = "#ffd54f";
+      else if (tile.type === "water") ctx.fillStyle = "#3f7fbf";
       ctx.fillRect(tile.x * tileSize, tile.y * tileSize, tileSize, tileSize);
 
       ctx.strokeStyle = "#000";

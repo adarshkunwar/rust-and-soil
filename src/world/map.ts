@@ -9,12 +9,21 @@ export const createMap = (): Tile[][] => {
   for (let y = 0; y < MAP_HEIGHT; y++) {
     const row: Tile[] = [];
     for (let x = 0; x < MAP_WIDTH; x++) {
-      row.push({
-        x,
-        y,
-        type: "weed",
-        crop: undefined,
-      });
+      if (x === MAP_WIDTH - 1) {
+        row.push({
+          x,
+          y,
+          type: "water",
+          crop: undefined,
+        });
+      } else {
+        row.push({
+          x,
+          y,
+          type: "weed",
+          crop: undefined,
+        });
+      }
     }
     map.push(row);
   }
