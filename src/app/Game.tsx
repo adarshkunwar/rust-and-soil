@@ -1,13 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createGameLoop } from "../engine/gameLoop";
 import { createInput } from "../engine/input";
 import { handleInteraction } from "../systems/interactionSystem";
 import { createMap } from "../world/map";
 import { updateGrowth } from "../systems/growthSystem";
+import { applyTool } from "../systems/toolSystem";
+import type { Game } from "../types/game";
+import type { ToolType } from "../types/tools";
 
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  console.log("game started");
+  const [tool, setTool] = useState<ToolType>("hoe");
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -18,21 +21,50 @@ const Game = () => {
     canvas.height = 600;
 
     const input = createInput();
-    const game = {
+    const game: Game = {
       map: createMap(),
       player: {
         x: 5,
         y: 5,
         speed: 0.1,
       },
-      selectedAction: "till",
+      selectedTool: tool,
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
       handleInteraction(game, e.key.toLowerCase());
     };
 
+    const handleKeyOperationDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
+      if (key === "1") {
+        game.selectedTool = "hoe";
+        setTool("hoe");
+      }
+
+      if (key === "2") {
+        game.selectedTool = "seed";
+        setTool("seed");
+      }
+
+      if (key === "3") {
+        game.selectedTool = "water";
+        setTool("water");
+      }
+
+      if (key === "4") {
+        game.selectedTool = "hand";
+        setTool("hand");
+      }
+
+      if (key === "e") {
+        applyTool(game);
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyOperationDown);
 
     const loop = createGameLoop(() => {
       update(game, input);
@@ -48,12 +80,32 @@ const Game = () => {
 
     return () => {
       clearInterval(growthInterval);
+      window.removeEventListener("keydown", handleKeyOperationDown);
       window.removeEventListener("keydown", handleKeyDown);
       loop.stop();
     };
   }, []);
 
-  return <canvas ref={canvasRef} style={{ border: "1px solid black" }} />;
+  return (
+    <div style={{ position: "relative" }}>
+      <canvas ref={canvasRef} style={{ border: "1px solid black" }} />
+
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          left: 10,
+          background: "rgba(0,0,0,0.6)",
+          color: "white",
+          padding: "10px",
+          fontFamily: "monospace",
+        }}
+      >
+        <div>1 Hoe | 2 Seed | 3 Water | 4 Hand</div>
+        <div>Selected: {tool}</div>
+      </div>
+    </div>
+  );
 };
 
 function update(game: any, input: any) {
@@ -85,7 +137,9 @@ function render(ctx: CanvasRenderingContext2D, game: any) {
 
   for (let row of game.map) {
     for (let tile of row) {
-      ctx.fillStyle = "#4caf50";
+      if (tile.type === "grass") ctx.fillStyle = "#4caf50";
+      if (tile.type === "tilled") ctx.fillStyle = "#8b5a2b";
+      if (tile.type === "watered") ctx.fillStyle = "#3f7fbf";
       ctx.fillRect(tile.x * tileSize, tile.y * tileSize, tileSize, tileSize);
 
       ctx.strokeStyle = "#000";
