@@ -215,6 +215,17 @@ function render(ctx: CanvasRenderingContext2D, game: Game) {
           ctx.fillStyle = "#4caf50";
           ctx.fillRect(x, y, tileSize, tileSize);
         }
+      } else if (tile.type === "store") {
+        if (SPRITES.store.complete) {
+          // background
+          ctx.drawImage(SPRITES.grass, x, y, tileSize, tileSize);
+
+          // foreground
+          ctx.drawImage(SPRITES.store, x, y, tileSize, tileSize);
+        } else {
+          ctx.fillStyle = "#4caf50";
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
       } else if (tile.type === "tilled") {
         if (SPRITES.tilled.complete) {
           ctx.drawImage(SPRITES.tilled, x, y, tileSize, tileSize);
