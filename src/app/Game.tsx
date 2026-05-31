@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createGameLoop } from "../engine/gameLoop";
 import { createInput } from "../engine/input";
-import { createMap, MAP_WIDTH } from "../world/map";
+import { createMap, MAP_HEIGHT, MAP_WIDTH } from "../world/map";
 import { updateGrowth } from "../systems/growthSystem";
 import { applyTool } from "../systems/toolSystem";
 import type { Game } from "../types/game";
@@ -52,6 +52,7 @@ const GameScreen = () => {
         x: 5,
         y: 5,
         speed: 0.1,
+        direction: "up",
       },
       selectedTool: TOOLS.hoe,
     };
@@ -171,22 +172,28 @@ function update(
   }
 
   if (input.keys["w"]) {
-    game.player.y -= 1;
+    game.player.y = game.player.y < 1 ? 0 : game.player.y - 1;
+    game.player.direction = "up";
     input.keys["w"] = false; // prevent continuous spam
   }
 
   if (input.keys["s"]) {
-    game.player.y += 1;
+    game.player.y =
+      game.player.y > MAP_HEIGHT - 2 ? MAP_HEIGHT - 1 : game.player.y + 1;
+    game.player.direction = "down";
     input.keys["s"] = false;
   }
 
   if (input.keys["a"]) {
-    game.player.x -= 1;
+    game.player.x = game.player.x < 1 ? 0 : game.player.x - 1;
+    game.player.direction = "left";
     input.keys["a"] = false;
   }
 
   if (input.keys["d"]) {
-    game.player.x += 1;
+    game.player.x =
+      game.player.x > MAP_WIDTH - 2 ? MAP_WIDTH - 1 : game.player.x + 1;
+    game.player.direction = "right";
     input.keys["d"] = false;
   }
 }
@@ -245,14 +252,30 @@ function render(ctx: CanvasRenderingContext2D, game: Game) {
 
   // player
 
+  const rotations = {
+    up: 0,
+    right: Math.PI / 2,
+    down: Math.PI,
+    left: -Math.PI / 2,
+  };
+
+  const x = game.player.x * tileSize;
+  const y = game.player.y * tileSize;
+
   if (SPRITES.robot_top_down.complete) {
+    ctx.save();
+
+    ctx.translate(x + tileSize / 2, y + tileSize / 2);
+    ctx.rotate(rotations[game.player.direction]);
+
     ctx.drawImage(
       SPRITES.robot_top_down,
-      game.player.x * tileSize,
-      game.player.y * tileSize,
+      -tileSize / 2,
+      -tileSize / 2,
       tileSize,
       tileSize,
     );
+    ctx.restore();
   } else {
     ctx.fillStyle = "red";
     ctx.fillRect(

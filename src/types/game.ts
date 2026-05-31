@@ -9,6 +9,7 @@ export type Game = {
     x: number;
     y: number;
     speed: number;
+    direction: "up" | "down" | "left" | "right";
   };
   selectedTool: ToolType;
 };
