@@ -1,7 +1,7 @@
 export type EntityType = "seed" | "crop";
 
-export type SeedType = "potato seed" | "carrot seed" | "wheat seed";
-export type CropType = "potato" | "carrot" | "wheat";
+export type SeedType = "wheat seed";
+export type CropType = "wheat";
 export type ItemType = SeedType | CropType;
 
 export interface BaseItem {
