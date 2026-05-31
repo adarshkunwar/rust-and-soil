@@ -244,13 +244,24 @@ function render(ctx: CanvasRenderingContext2D, game: Game) {
   }
 
   // player
-  ctx.fillStyle = "red";
-  ctx.fillRect(
-    game.player.x * tileSize,
-    game.player.y * tileSize,
-    tileSize,
-    tileSize,
-  );
+
+  if (SPRITES.robot_top_down.complete) {
+    ctx.drawImage(
+      SPRITES.robot_top_down,
+      game.player.x * tileSize,
+      game.player.y * tileSize,
+      tileSize,
+      tileSize,
+    );
+  } else {
+    ctx.fillStyle = "red";
+    ctx.fillRect(
+      game.player.x * tileSize,
+      game.player.y * tileSize,
+      tileSize,
+      tileSize,
+    );
+  }
 }
 
 export default GameScreen;
