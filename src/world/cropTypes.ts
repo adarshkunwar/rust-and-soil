@@ -1,7 +1,7 @@
 export type CropStage = "seed" | "growing" | "ready";
 
 export type Crop = {
-  type: "carrot";
+  type: "wheat";
   stage: CropStage;
   growth: number;
 };

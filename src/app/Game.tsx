@@ -15,7 +15,6 @@ import { game } from "../entities/game.entity";
 const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [tool, setTool] = useState<ToolType>(TOOLS.hoe);
-  const [resources, setResouces] = useState<number>(0);
   const [power, setPower] = useState<number>(game.player.power);
   const powerRef = useRef<number>(game.player.power);
   const [runId, setRunId] = useState(0);
@@ -34,10 +33,9 @@ const GameScreen = () => {
 
   const handleRetry = useCallback(() => {
     setTool(TOOLS.hoe);
-    setResouces(0);
     setPowerSynced(game.player.power);
     setRunId((v) => v + 1);
-  }, [setPowerSynced, setTool, setResouces, setRunId]);
+  }, [setPowerSynced, setTool, setRunId]);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -73,7 +71,7 @@ const GameScreen = () => {
       }
 
       if (key === "e") {
-        applyTool(game, setResouces, () => setIsShopOpen(true));
+        applyTool(game, () => setIsShopOpen(true));
       }
 
       if (key === "escape") {
@@ -146,8 +144,15 @@ const GameScreen = () => {
           fontFamily: "monospace",
         }}
       >
-        <div>Crops: {resources}</div>
         <div>Power: {power}</div>
+
+        <div>
+          {Object.entries(game.inventory).map(([item, count]) => (
+            <div key={item}>
+              {item}: {count}
+            </div>
+          ))}
+        </div>
       </div>
 
       {isShopOpen ? (

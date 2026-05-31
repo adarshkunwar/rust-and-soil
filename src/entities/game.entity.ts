@@ -13,11 +13,11 @@ export const game: Game = {
   },
   selectedTool: TOOLS.hoe,
   inventory: {
-    wheat: 0,
+    wheat: 20,
+    "wheat seed": 10,
     "carrot seed": 0,
     carrot: 0,
     "potato seed": 0,
     potato: 0,
-    "wheat seed": 0,
   },
 };
