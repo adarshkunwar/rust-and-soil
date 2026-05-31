@@ -5,15 +5,15 @@ import type { Tile } from "../world/tileTypes";
 export function applyTool(
   game: Game,
   setResource: React.Dispatch<React.SetStateAction<number>>,
+  openShop: () => void,
 ) {
   let tile: Tile = game.map[game.player.y]?.[game.player.x];
   if (!tile) return;
 
   const tool: ToolType = game.selectedTool;
 
-  console.log("TOOL:", tool, tile);
+  if (tile.type === "store") openShop();
 
-  // HOE → till ground
   if (tool === "hoe") {
     if (tile.type === "weed") {
       tile.type = "tilled";

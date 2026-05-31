@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createGameLoop } from "../engine/gameLoop";
 import { createInput } from "../engine/input";
-import { createMap, MAP_HEIGHT, MAP_WIDTH } from "../world/map";
+import { MAP_HEIGHT, MAP_WIDTH } from "../world/map";
 import { updateGrowth } from "../systems/growthSystem";
 import { applyTool } from "../systems/toolSystem";
 import type { Game } from "../types/game";
@@ -9,16 +9,17 @@ import { TOOLS } from "../constants/tools.const";
 import type { ToolType } from "../types/tools";
 import { SPRITES } from "../constants/sprite.const";
 import DeathScreen from "../ui/DeathScreen";
-
-const INITIAL_POWER = 6;
+import ShopScreen from "../ui/ShopScreen";
+import { game } from "../entities/game.entity";
 
 const GameScreen = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [tool, setTool] = useState<ToolType>(TOOLS.hoe);
   const [resources, setResouces] = useState<number>(0);
-  const [power, setPower] = useState<number>(INITIAL_POWER);
-  const powerRef = useRef<number>(INITIAL_POWER);
+  const [power, setPower] = useState<number>(game.player.power);
+  const powerRef = useRef<number>(game.player.power);
   const [runId, setRunId] = useState(0);
+  const [isShopOpen, setIsShopOpen] = useState(false);
 
   const setPowerSynced = useCallback(
     (updater: number | ((prev: number) => number)) => {
@@ -34,7 +35,7 @@ const GameScreen = () => {
   const handleRetry = useCallback(() => {
     setTool(TOOLS.hoe);
     setResouces(0);
-    setPowerSynced(INITIAL_POWER);
+    setPowerSynced(game.player.power);
     setRunId((v) => v + 1);
   }, [setPowerSynced, setTool, setResouces, setRunId]);
 
@@ -46,19 +47,10 @@ const GameScreen = () => {
     canvas.height = 600;
 
     const input = createInput();
-    const game: Game = {
-      map: createMap(),
-      player: {
-        x: 5,
-        y: 5,
-        speed: 0.1,
-        direction: "up",
-      },
-      selectedTool: TOOLS.hoe,
-    };
 
     const handleKeyOperationDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
+      console.log(key);
 
       if (powerRef.current < 1) {
         if (key === "r" || key === "enter") handleRetry();
@@ -81,7 +73,11 @@ const GameScreen = () => {
       }
 
       if (key === "e") {
-        applyTool(game, setResouces);
+        applyTool(game, setResouces, () => setIsShopOpen(true));
+      }
+
+      if (key === "escape") {
+        if (isShopOpen) setIsShopOpen(false);
       }
     };
 
@@ -118,7 +114,7 @@ const GameScreen = () => {
       window.removeEventListener("keydown", handleKeyOperationDown);
       loop.stop();
     };
-  }, [runId, setPowerSynced, handleRetry]);
+  }, [isShopOpen, runId, setPowerSynced, handleRetry]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -154,6 +150,21 @@ const GameScreen = () => {
         <div>Power: {power}</div>
       </div>
 
+      {isShopOpen ? (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 10,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ShopScreen game={game} />
+        </div>
+      ) : null}
       {power < 1 ? <DeathScreen onRetry={handleRetry} /> : null}
     </div>
   );
@@ -256,8 +267,8 @@ function render(ctx: CanvasRenderingContext2D, game: Game) {
         }
       }
 
-      ctx.strokeStyle = "#000";
-      ctx.strokeRect(x, y, tileSize, tileSize);
+      // ctx.strokeStyle = "#000";
+      // ctx.strokeRect(x, y, tileSize, tileSize);
     }
   }
 
